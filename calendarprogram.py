@@ -119,16 +119,16 @@ def open_event(date_to_do, button_list, index):
         exceptions_with_nd = [2, 22]
         exceptions_with_rd = [3, 23]
         
-        if display[1] not in exceptions_with_st and display[1] not in exceptions_with_nd and display[1] not in exceptions_with_rd:
+        if int(display[1]) not in exceptions_with_st and int(display[1]) not in exceptions_with_nd and int(display[1]) not in exceptions_with_rd:
             final = MONTHS[int(display[0]) - 1] + " " + str(display[1])+"th"+", " + str(display[2])
 
-        elif display[1] in exceptions_with_st:
+        elif int(display[1]) in exceptions_with_st:
             final = MONTHS[int(display[0]) - 1] + " " + str(display[1])+"st"+", " + str(display[2])
 
-        elif display[1] in exceptions_with_nd:
+        elif int(display[1]) in exceptions_with_nd:
             final = MONTHS[int(display[0]) - 1] + " " + str(display[1])+"nd"+", " + str(display[2])
 
-        elif display[1] in exceptions_with_rd:
+        elif int(display[1]) in exceptions_with_rd:
             final = MONTHS[int(display[0]) - 1] + " " + str(display[1])+"rd"+", " + str(display[2])
         
         d = tkinter.Label(event_manager, text = final, font = ("Helvetica", 25))
@@ -137,36 +137,10 @@ def open_event(date_to_do, button_list, index):
         b = tkinter.Button(event_manager, text = "Add Task/Event")
         b.place(relx = 0.85, rely = 0.1, anchor = "center")
 
-        exit_button = tkinter.Button(event_manager, text = "X", border = 0, relief = tkinter.FLAT, padx = 7)
-        exit_button.place(relx = 0.966, rely = 0.0005)
+        exit_button = tkinter.Button(event_manager, text = "X", border = 1, borderwidth = 1, highlightthickness = 1, highlightcolor = "black", highlightbackground = "black", relief = tkinter.FLAT, padx = 7)
+        exit_button.place(relx = 0.96, rely = 0.0005)
 
         num_of_events = 0
-
-        def add_event(listupdate, varupdate, iteration):
-            global num_of_events
-            
-            c = tkinter.Checkbutton(event_manager, command = lambda: strikethrough(EVENTS_DICTIONARY[date_to_do][i][0], e, EVENTS_DICTIONARY[date_to_do][i][1], EVENTS_DICTIONARY, date_to_do, i))
-            print(iteration)
-            c.place(relx = 0.1, rely = 0.3 + (0.15 * (iteration + 1)))
-
-            entry = tkinter.Entry(event_manager)
-            entry.place(relx = 0.2, rely = 0.3 + (0.15 * (iteration + 1)))
-            
-            listupdate[varupdate][iteration].append("hi")
-
-            iteration += 1
-
-        def hover_button(event, widget):
-            widget.config(bg = "red")
-
-        def leave_button(event, widget):
-            widget.config(bg = "#f0f0f0")
-
-
-        b.config(command = lambda: add_event(EVENTS_DICTIONARY, date_to_do, num_of_events))
-
-        exit_button.bind("<Enter>", lambda x: hover_button("<Enter>", exit_button))
-        exit_button.bind("<Leave>", lambda x: leave_button("<Leave>", exit_button))
 
         def strikethrough(text, text_var, state, listupdate, varupdate, iteration):
             if state == False:
@@ -181,14 +155,67 @@ def open_event(date_to_do, button_list, index):
             elif state == True:
                 text_var.config(text = EVENTS_DICTIONARY[date_to_do][i][0])
                 listupdate[varupdate][iteration][1] = False
-        
-        for i in range(len(EVENTS_DICTIONARY[date_to_do][0])):
-            EVENTS_DICTIONARY[date_to_do][i].append(False)
-            e = tkinter.Label(event_manager, text = EVENTS_DICTIONARY[date_to_do][i][0], font = ("Times new roman", 20))
-            e.place(relx = 0.2, rely = 0.3 + (0.15 * i))
 
-            c = tkinter.Checkbutton(event_manager, command = lambda: strikethrough(EVENTS_DICTIONARY[date_to_do][i][0], e, EVENTS_DICTIONARY[date_to_do][i][1], EVENTS_DICTIONARY, date_to_do, i))
-            c.place(relx = 0.1, rely = 0.3 + (0.15 * i))
+        def putevents(date, strikefunc):
+            
+            global EVENTS_DICTIONARY
+            for i in range(len(EVENTS_DICTIONARY[date])):
+                if len(EVENTS_DICTIONARY[date][i]) == 0:
+                    pass
+                else:
+                    e = tkinter.Label(event_manager, text = EVENTS_DICTIONARY[date][i][0], font = ("Times new roman", 20))
+                    e.place(relx = 0.2, rely = 0.3 + (0.15 * i))
+
+                    c = tkinter.Checkbutton(event_manager, command = lambda: strikefunc(EVENTS_DICTIONARY[date][i][0], e, EVENTS_DICTIONARY[date][i][1], EVENTS_DICTIONARY, date, i))
+                    c.place(relx = 0.1, rely = 0.3 + (0.15 * i))
+                    # EVENTS_DICTIONARY[date_to_do][i].append(False)
+
+        def add_event(listupdate, varupdate, iteration):
+            nonlocal num_of_events, putevents
+            
+            c = tkinter.Checkbutton(event_manager, command = lambda: strikethrough(EVENTS_DICTIONARY[date_to_do][iteration][0], e, EVENTS_DICTIONARY[date_to_do][iteration][1], EVENTS_DICTIONARY, date_to_do, iteration))
+            print(iteration)
+            c.place(relx = 0.1, rely = 0.3 + (0.15 * (num_of_events)))
+
+            entry = tkinter.Entry(event_manager)
+            entry.place(relx = 0.2, rely = 0.3 + (0.15 * (num_of_events)))
+            
+            tempdate = date_to_do
+
+            def enter_clicked(event, strikefunc2, listvar, var):
+                nonlocal putevents, tempdate, num_of_events
+                print(listvar)
+                
+                try:
+                    ap = listvar[var][num_of_events - 1]
+
+                except IndexError:
+                    ap = listvar[var]
+    
+                ap += [[entry.get(), False]]
+                print(ap)
+                entry.place_forget()
+                listupdate.update({varupdate: ap})
+                print(listupdate)
+                putevents(tempdate, strikefunc2)
+
+            entry.bind("<Return>", lambda x: enter_clicked("<Return>", strikethrough, listupdate, varupdate))
+            
+            num_of_events += 1
+
+        def hover_button(event, widget):
+            widget.config(bg = "red")
+
+        def leave_button(event, widget):
+            widget.config(bg = "#f0f0f0")
+
+
+        b.config(command = lambda: add_event(EVENTS_DICTIONARY, date_to_do, num_of_events))
+
+        exit_button.bind("<Enter>", lambda x: hover_button("<Enter>", exit_button))
+        exit_button.bind("<Leave>", lambda x: leave_button("<Leave>", exit_button))
+
+        putevents(date_to_do, strikethrough)
 
         EVENT_OPEN_BOOL = True
         
@@ -220,7 +247,7 @@ def place_month(month, function, year, day, start_day):
             maincount += 1
             dayvar += 1
             LIST_OF_DAYLABELS[LIST_OF_DAYLABELS.index([num, but])].append([maincount * (205.17) + 6.85, (120) * (factor) + HEIGHTS[0] - 115, str(month) + " " + str(num.cget("text")) + " " + str(year)])
-            EVENTS_DICTIONARY.update({str(month) + " " + str(num.cget("text")) + " " + str(year): [[]]})
+            EVENTS_DICTIONARY.update({str(month) + " " + str(num.cget("text")) + " " + str(year): []})
             LIST_OF_BUTTONS.append([but, str(month) + " " + str(num.cget("text")) + " " + str(year)])
             
         elif (maincount) == 7:
@@ -230,7 +257,7 @@ def place_month(month, function, year, day, start_day):
             but.place(x = (maincount * (205.17) + (200/2.5)), y = (120) * (factor) + HEIGHTS[0] - 115)
             
             LIST_OF_DAYLABELS[LIST_OF_DAYLABELS.index([num, but])].append([maincount * (205.17) + 6.85, (120) * (factor) + HEIGHTS[0] - 115, dayvar])
-            EVENTS_DICTIONARY.update({str(month) + " " + str(num.cget("text")) + " " + str(year): [[]]})
+            EVENTS_DICTIONARY.update({str(month) + " " + str(num.cget("text")) + " " + str(year): []})
             LIST_OF_BUTTONS.append([but, str(month) + " " + str(num.cget("text")) + " " + str(year)])
             
         num.lift()
