@@ -16,4 +16,6 @@ Some examples of the logic that's difficult to code includes the placement of ea
 > **Roadmap**
 
  - Finish the strikethrough system for events so that it works correctly.
- - Add a visual list for each date on the calendar. 
+ - Add a visual list for each date on the calendar.
+ - Store the internal data in lists within text files in the same directory (this way the data is saved even after closing the GUI)
+ - Convert this program to an `.exe` file for personal use, using pyexe module from PIP. 
