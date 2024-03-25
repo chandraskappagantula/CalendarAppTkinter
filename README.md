@@ -6,3 +6,7 @@ If you think the code's messy, it probably is very messy and hard to read. But i
 > **Installation**
 
 Ensure that all assets and main `.py` file are placed in the same directory. You need to have the `PIL` library installed with the following: `pip install pillow`. You may want to check which modules are already installed with `python -m pip list`. 
+
+> **Purpose**
+
+This is a personal calendar app that I programmed for my own use. Coding such an app may seem like a simple task but requires a lot of familiarity with the programming mindset: a mindset which utilizes lots of logic. The ability to add new features without breaking old ones succesfully, the ability to persevere in the face of troubleshooting, these are all skills I want to learn and have improved upon by coding this project. 
