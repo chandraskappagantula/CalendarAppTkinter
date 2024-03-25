@@ -137,28 +137,30 @@ def open_event(date_to_do, button_list, index):
         b = tkinter.Button(event_manager, text = "Add Task/Event")
         b.place(relx = 0.85, rely = 0.1, anchor = "center")
 
-        exit_button = tkinter.Button(event_manager, text = "X", border = 1, borderwidth = 1, highlightthickness = 1, highlightcolor = "black", highlightbackground = "black", relief = tkinter.FLAT, padx = 7)
+        exit_button = tkinter.Button(event_manager, text = "X", bg = "light grey", border = 1, borderwidth = 1, highlightthickness = 1, highlightcolor = "black", highlightbackground = "black", relief = tkinter.FLAT, padx = 7)
         exit_button.place(relx = 0.96, rely = 0.0005)
 
         num_of_events = 0
 
         def strikethrough(text, text_var, state, listupdate, varupdate, iteration):
-            if state == False:
+            global EVENTS_DICTIONARY
+            if state == True:
                 result = ""
                 for char in text:
                     result = result + char + "\u0336"
 
                 text_var.config(text = result)
 
-                listupdate[varupdate][iteration][1] = True
+                EVENTS_DICTIONARY[varupdate][iteration][1] = False
 
-            elif state == True:
-                text_var.config(text = EVENTS_DICTIONARY[date_to_do][i][0])
-                listupdate[varupdate][iteration][1] = False
+            elif state == False:
+                print("here")
+                text_var.config(text = listupdate[varupdate][iteration][0])
+                EVENTS_DICTIONARY[varupdate][iteration][1] = True
 
         def putevents(date, strikefunc):
-            
             global EVENTS_DICTIONARY
+            
             for i in range(len(EVENTS_DICTIONARY[date])):
                 if len(EVENTS_DICTIONARY[date][i]) == 0:
                     pass
@@ -166,14 +168,14 @@ def open_event(date_to_do, button_list, index):
                     e = tkinter.Label(event_manager, text = EVENTS_DICTIONARY[date][i][0], font = ("Times new roman", 20))
                     e.place(relx = 0.2, rely = 0.3 + (0.15 * i))
 
-                    c = tkinter.Checkbutton(event_manager, command = lambda: strikefunc(EVENTS_DICTIONARY[date][i][0], e, EVENTS_DICTIONARY[date][i][1], EVENTS_DICTIONARY, date, i))
+                    c = tkinter.Button(event_manager, command = lambda: strikefunc(EVENTS_DICTIONARY[date][i][0], e, EVENTS_DICTIONARY[date][i][1], EVENTS_DICTIONARY, date, i))
                     c.place(relx = 0.1, rely = 0.3 + (0.15 * i))
                     # EVENTS_DICTIONARY[date_to_do][i].append(False)
 
         def add_event(listupdate, varupdate, iteration):
             nonlocal num_of_events, putevents
             
-            c = tkinter.Checkbutton(event_manager, command = lambda: strikethrough(EVENTS_DICTIONARY[date_to_do][iteration][0], e, EVENTS_DICTIONARY[date_to_do][iteration][1], EVENTS_DICTIONARY, date_to_do, iteration))
+            c = tkinter.Button(event_manager, command = lambda: strikethrough(EVENTS_DICTIONARY[date_to_do][iteration][0], e, EVENTS_DICTIONARY[date_to_do][iteration][1], EVENTS_DICTIONARY, date_to_do, iteration))
             print(iteration)
             c.place(relx = 0.1, rely = 0.3 + (0.15 * (num_of_events)))
 
@@ -207,7 +209,16 @@ def open_event(date_to_do, button_list, index):
             widget.config(bg = "red")
 
         def leave_button(event, widget):
-            widget.config(bg = "#f0f0f0")
+            widget.config(bg = "light grey")
+
+        def close(manager):
+            global EVENT_OPEN_BOOL
+            
+            for child_widget in manager.winfo_children():
+                child_widget.destroy()
+                
+            manager.place_forget()
+            EVENT_OPEN_BOOL = False
 
 
         b.config(command = lambda: add_event(EVENTS_DICTIONARY, date_to_do, num_of_events))
@@ -215,6 +226,8 @@ def open_event(date_to_do, button_list, index):
         exit_button.bind("<Enter>", lambda x: hover_button("<Enter>", exit_button))
         exit_button.bind("<Leave>", lambda x: leave_button("<Leave>", exit_button))
 
+        exit_button.config(command = lambda: close(event_manager))
+        
         putevents(date_to_do, strikethrough)
 
         EVENT_OPEN_BOOL = True
@@ -247,7 +260,12 @@ def place_month(month, function, year, day, start_day):
             maincount += 1
             dayvar += 1
             LIST_OF_DAYLABELS[LIST_OF_DAYLABELS.index([num, but])].append([maincount * (205.17) + 6.85, (120) * (factor) + HEIGHTS[0] - 115, str(month) + " " + str(num.cget("text")) + " " + str(year)])
-            EVENTS_DICTIONARY.update({str(month) + " " + str(num.cget("text")) + " " + str(year): []})
+            try:
+                EVENTS_DICTIONARY.update({str(month) + " " + str(num.cget("text")) + " " + str(year): EVENTS_DICTIONARY[str(month) + " " + str(num.cget("text")) + " " + str(year)]})
+
+            except KeyError:
+                EVENTS_DICTIONARY.update({str(month) + " " + str(num.cget("text")) + " " + str(year): []})
+                
             LIST_OF_BUTTONS.append([but, str(month) + " " + str(num.cget("text")) + " " + str(year)])
             
         elif (maincount) == 7:
@@ -257,7 +275,12 @@ def place_month(month, function, year, day, start_day):
             but.place(x = (maincount * (205.17) + (200/2.5)), y = (120) * (factor) + HEIGHTS[0] - 115)
             
             LIST_OF_DAYLABELS[LIST_OF_DAYLABELS.index([num, but])].append([maincount * (205.17) + 6.85, (120) * (factor) + HEIGHTS[0] - 115, dayvar])
-            EVENTS_DICTIONARY.update({str(month) + " " + str(num.cget("text")) + " " + str(year): []})
+            try:
+                EVENTS_DICTIONARY.update({str(month) + " " + str(num.cget("text")) + " " + str(year): EVENTS_DICTIONARY[str(month) + " " + str(num.cget("text")) + " " + str(year)]})
+
+            except KeyError:
+                EVENTS_DICTIONARY.update({str(month) + " " + str(num.cget("text")) + " " + str(year): []})
+                
             LIST_OF_BUTTONS.append([but, str(month) + " " + str(num.cget("text")) + " " + str(year)])
             
         num.lift()
