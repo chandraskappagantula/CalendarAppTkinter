@@ -20,4 +20,6 @@ Some examples of the logic that's difficult to code includes the placement of ea
  - Store the internal data in lists within text files in the same directory (this way the data is saved even after closing the GUI).
  - Clear old data stored in the text files to speed up the program.
  - Create a "focus timer" system which starts a timer (similar to the Microsoft Clock app's focus system on Windows 11)
+ - Graph the user's productivity over a certain month based on how many hours they focus each day.
+ - Connect to spotify for music during focus sessions using Spotify API. 
  - Convert this program to an `.exe` file for personal use, using pyexe module from PIP. 
