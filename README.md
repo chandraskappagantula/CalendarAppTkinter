@@ -15,7 +15,7 @@ Some examples of the logic that's difficult to code includes the placement of ea
 
 > **Roadmap**
 
- - Finish the strikethrough system for events so that it works correctly.
+ - Finish the strikethrough system for events so that it works correctly. (It has a lot of bugs as of right now)
  - Add a visual list for each date on the calendar.
  - Store the internal data in lists within text files in the same directory (this way the data is saved even after closing the GUI).
  - Clear old data stored in the text files to speed up the program.
