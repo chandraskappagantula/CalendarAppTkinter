@@ -15,7 +15,7 @@ Some examples of the logic that's difficult to code includes the placement of ea
 
 > **Roadmap**
 
- - Finish the strikethrough system for events so that it works correctly. (It has a lot of bugs as of right now) (Skipping this so I can add other features - all other event features work properly)
+ - Finish the strikethrough system for events so that it works correctly. (It has a lot of bugs as of right now) (Skipping this so I can add other features - all other event features work properly besides the strikethrough feature - can't figure out why and it's infuriating)
  - Add a visual list for each date on the calendar.
  - Create a "focus timer" system which starts a timer (similar to the Microsoft Clock app's focus system on Windows 11)
  - Graph the user's productivity over a certain month based on how many hours they focus each day.
