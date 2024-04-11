@@ -25,6 +25,11 @@ MONTHS = ["January", "February", "March", "April", "May", "June", "July", "Augus
 TODAYS_DATE = str(datetime.datetime.now().month) + " " + str(datetime.datetime.now().day) + " " + str(datetime.datetime.now().year)
 TODAYS_DATE_ACTUAL = str(datetime.datetime.now().month) + " " + str(datetime.datetime.now().day) + " " + str(datetime.datetime.now().year)
 
+COUNTER = 0
+HOURS = 0
+STATE_OF_STOPWATCH = False
+
+FOCUS_DAYS = {}
 
 def print_date(days, months):
     month = datetime.datetime.now().month
@@ -90,16 +95,22 @@ WIDTHS = [0, 205.17, 205.17 * 2, 205.17 * 3, 205.17 * 4, 205.17 * 5, 205.17 * 6,
 
 WEEKDAYDICT = {"Monday": 1, "Tuesday": 2, "Wednesday": 3, "Thursday": 4, "Friday": 5, "Saturday": 6, "Sunday": 7}
 
-for i in range(len(HEIGHTS)):
-    HEIGHTS[i] += HEIGHT/5
+BLOCKS = []
 
-for n in range(5):
-    for i in range(7):
-        l = tkinter.Canvas(frame, height = 120, width = 205.17, highlightbackground = "grey", borderwidth = 10)
-        l.place(x = WIDTHS[i], y = HEIGHTS[n])
+def PLACE_CANVAS(master_widget, monthblockslist):
+    global HEIGHTS, WIDTHS
+    
+    for i in range(len(HEIGHTS)):
+        HEIGHTS[i] += HEIGHT/5
+
+    for n in range(5):
+        for i in range(7):
+            l = tkinter.Canvas(master_widget, height = 120, width = 205.17, highlightbackground = "grey", borderwidth = 10)
+            l.place(x = WIDTHS[i], y = HEIGHTS[n])
+            monthblockslist.append(l)
 
 for i in range(len(DAYS)):
-    tkinter.Label(window, text = DAYS[i][0:3]).place(x = (i) * (205.17) + 102.85, y = 120 + HEIGHTS[0] - 145)
+    tkinter.Label(window, text = DAYS[i][0:3]).place(x = (i) * (205.17) + 102.85, rely = 0.17)
 
 LIST_OF_DAYLABELS = []
 EVENTS_DICTIONARY = {}
@@ -142,23 +153,25 @@ def open_event(date_to_do, button_list, index):
 
         num_of_events = 0
 
-        def strikethrough(text, text_var, state, listupdate, varupdate, iteration):
+        LIST_OF_TEXTVARS_WITH_BUTTONS = []
+
+        def strikethrough(text, state, listupdate, varupdate, iteration, listvar3):
             global EVENTS_DICTIONARY
-            if state == True:
+            if state == False:
                 result = ""
                 for char in text:
                     result = result + char + "\u0336"
+                print(iteration)
+                listvar3[iteration][0].config(text = result)
 
-                text_var.config(text = result)
-
-                EVENTS_DICTIONARY[varupdate][iteration][1] = False
-
-            elif state == False:
-                print("here")
-                text_var.config(text = listupdate[varupdate][iteration][0])
                 EVENTS_DICTIONARY[varupdate][iteration][1] = True
 
-        def putevents(date, strikefunc):
+            elif state == True:
+                print("here: ", iteration)
+                listvar3[iteration][0].config(text = listupdate[varupdate][iteration][0])
+                EVENTS_DICTIONARY[varupdate][iteration][1] = False
+
+        def putevents(date, strikefunc, listvar):
             global EVENTS_DICTIONARY
             
             for i in range(len(EVENTS_DICTIONARY[date])):
@@ -168,14 +181,15 @@ def open_event(date_to_do, button_list, index):
                     e = tkinter.Label(event_manager, text = EVENTS_DICTIONARY[date][i][0], font = ("Times new roman", 20))
                     e.place(relx = 0.2, rely = 0.3 + (0.15 * i))
 
-                    c = tkinter.Button(event_manager, command = lambda: strikefunc(EVENTS_DICTIONARY[date][i][0], e, EVENTS_DICTIONARY[date][i][1], EVENTS_DICTIONARY, date, i))
+                    c = tkinter.Button(event_manager, text = "X", command = lambda k = i: strikefunc(EVENTS_DICTIONARY[date][k][0], EVENTS_DICTIONARY[date][k][1], EVENTS_DICTIONARY, date, k, listvar))
                     c.place(relx = 0.1, rely = 0.3 + (0.15 * i))
-                    # EVENTS_DICTIONARY[date_to_do][i].append(False)
+                    
+                    listvar.append([e, c])
 
-        def add_event(listupdate, varupdate, iteration):
+        def add_event(listupdate, varupdate, iteration, listvars2):
             nonlocal num_of_events, putevents
             
-            c = tkinter.Button(event_manager, command = lambda: strikethrough(EVENTS_DICTIONARY[date_to_do][iteration][0], e, EVENTS_DICTIONARY[date_to_do][iteration][1], EVENTS_DICTIONARY, date_to_do, iteration))
+            c = tkinter.Button(event_manager, text = "X", command = lambda: strikethrough(EVENTS_DICTIONARY[date_to_do][iteration][0], e, EVENTS_DICTIONARY[date_to_do][iteration][1], EVENTS_DICTIONARY, date_to_do, iteration, listvars2))
             print(iteration)
             c.place(relx = 0.1, rely = 0.3 + (0.15 * (num_of_events)))
 
@@ -184,7 +198,7 @@ def open_event(date_to_do, button_list, index):
             
             tempdate = date_to_do
 
-            def enter_clicked(event, strikefunc2, listvar, var):
+            def enter_clicked(event, strikefunc2, listvar, var, listvars):
                 nonlocal putevents, tempdate, num_of_events
                 print(listvar)
                 
@@ -199,9 +213,9 @@ def open_event(date_to_do, button_list, index):
                 entry.place_forget()
                 listupdate.update({varupdate: ap})
                 print(listupdate)
-                putevents(tempdate, strikefunc2)
+                putevents(tempdate, strikefunc2, listvars)
 
-            entry.bind("<Return>", lambda x: enter_clicked("<Return>", strikethrough, listupdate, varupdate))
+            entry.bind("<Return>", lambda x: enter_clicked("<Return>", strikethrough, listupdate, varupdate, listvars2))
             
             num_of_events += 1
 
@@ -221,14 +235,14 @@ def open_event(date_to_do, button_list, index):
             EVENT_OPEN_BOOL = False
 
 
-        b.config(command = lambda: add_event(EVENTS_DICTIONARY, date_to_do, num_of_events))
+        b.config(command = lambda: add_event(EVENTS_DICTIONARY, date_to_do, num_of_events, LIST_OF_TEXTVARS_WITH_BUTTONS))
 
         exit_button.bind("<Enter>", lambda x: hover_button("<Enter>", exit_button))
         exit_button.bind("<Leave>", lambda x: leave_button("<Leave>", exit_button))
 
         exit_button.config(command = lambda: close(event_manager))
         
-        putevents(date_to_do, strikethrough)
+        putevents(date_to_do, strikethrough, LIST_OF_TEXTVARS_WITH_BUTTONS)
 
         EVENT_OPEN_BOOL = True
         
@@ -242,7 +256,8 @@ def button_personalize(l):
         l[i][0].config(command = lambda i = i: open_event(l[i][1], l, i))
 
 def place_month(month, function, year, day, start_day):
-    global TODAYS_DATE, TODAYS_DATE_ACTUAL, LIST_OF_DAYLABELS, EVENTS_DICTIONARY, LIST_OF_BUTTONS
+    global TODAYS_DATE, TODAYS_DATE_ACTUAL, LIST_OF_DAYLABELS, EVENTS_DICTIONARY, LIST_OF_BUTTONS, BLOCKS, FOCUS_DAYs
+    
     dayvar = 1
     maincount = WEEKDAYDICT[function(day, start_day)] - 1
     factor = 1
@@ -259,14 +274,17 @@ def place_month(month, function, year, day, start_day):
             
             maincount += 1
             dayvar += 1
-            LIST_OF_DAYLABELS[LIST_OF_DAYLABELS.index([num, but])].append([maincount * (205.17) + 6.85, (120) * (factor) + HEIGHTS[0] - 115, str(month) + " " + str(num.cget("text")) + " " + str(year)])
+            LIST_OF_DAYLABELS[LIST_OF_DAYLABELS.index([num, but])].append([maincount * (205.17) + 6.85, (120) * (factor) + HEIGHTS[0] - 115, str(month) + " " + str(num.cget("text")) + " " + str(year), BLOCKS[dayvar]])
             try:
                 EVENTS_DICTIONARY.update({str(month) + " " + str(num.cget("text")) + " " + str(year): EVENTS_DICTIONARY[str(month) + " " + str(num.cget("text")) + " " + str(year)]})
-
+                FOCUS_DAYS.update({str(month) + " " + str(num.cget("text")) + " " + str(year): 0})
             except KeyError:
                 EVENTS_DICTIONARY.update({str(month) + " " + str(num.cget("text")) + " " + str(year): []})
-                
+                FOCUS_DAYS.update({str(month) + " " + str(num.cget("text")) + " " + str(year): 0})
             LIST_OF_BUTTONS.append([but, str(month) + " " + str(num.cget("text")) + " " + str(year)])
+
+            if str(month) + " " + str(num.cget("text")) + " " + str(year) == TODAYS_DATE_ACTUAL:
+                num.config(bg = "red")
             
         elif (maincount) == 7:
             maincount = 0
@@ -274,21 +292,39 @@ def place_month(month, function, year, day, start_day):
             num.place(x = (maincount * (205.17) + 6.85), y = (120) * (factor) + HEIGHTS[0] - 115)
             but.place(x = (maincount * (205.17) + (200/2.5)), y = (120) * (factor) + HEIGHTS[0] - 115)
             
-            LIST_OF_DAYLABELS[LIST_OF_DAYLABELS.index([num, but])].append([maincount * (205.17) + 6.85, (120) * (factor) + HEIGHTS[0] - 115, dayvar])
+            LIST_OF_DAYLABELS[LIST_OF_DAYLABELS.index([num, but])].append([maincount * (205.17) + 6.85, (120) * (factor) + HEIGHTS[0] - 115, str(month) + " " + str(num.cget("text")) + " " + str(year), BLOCKS[dayvar]])
             try:
                 EVENTS_DICTIONARY.update({str(month) + " " + str(num.cget("text")) + " " + str(year): EVENTS_DICTIONARY[str(month) + " " + str(num.cget("text")) + " " + str(year)]})
-
+                FOCUS_DAYS.update({str(month) + " " + str(num.cget("text")) + " " + str(year): 0})
             except KeyError:
                 EVENTS_DICTIONARY.update({str(month) + " " + str(num.cget("text")) + " " + str(year): []})
-                
+                FOCUS_DAYS.update({str(month) + " " + str(num.cget("text")) + " " + str(year): 0})
             LIST_OF_BUTTONS.append([but, str(month) + " " + str(num.cget("text")) + " " + str(year)])
+            
+            if str(month) + " " + str(num.cget("text")) + " " + str(year) == TODAYS_DATE_ACTUAL:
+                num.config(bg = "red")
             
         num.lift()
 
     TODAYS_DATE = str(datetime.datetime.now().month) + " " + str(datetime.datetime.now().day) + " " + str(year)
 
+def update_events_main_page(dayeventslist, daylabelslist, dictionary):
+    for i in range(len(dayeventslist)):
+        for n in range(len(daylabelslist)):
+            if dayeventslist[i] in daylabelslist[n]:
+                l = dictionary[daylabelslist[n][1]]
+
+                for item in l:
+                    c = daylabelslist[n][2].create_text(text = item)
+
+PLACE_CANVAS(frame, BLOCKS)
+
+print(BLOCKS)
+
 place_month(datetime.datetime.now().month, find_day, datetime.datetime.now().year, DAYS[datetime.datetime.now().weekday()], datetime.datetime.now().day - 1)
 button_personalize(LIST_OF_BUTTONS)
+
+update_events_main_page(BLOCKS, LIST_OF_DAYLABELS, EVENTS_DICTIONARY)
 
 leftbutton_image = ImageTk.PhotoImage(Image.open("C:\\Users\\chand\\OneDrive\\Desktop\\pythonprograms\\leftbutton_1_50_1_100x67.png"))
 rightbutton_image = ImageTk.PhotoImage(Image.open("C:\\Users\\chand\\OneDrive\\Desktop\\pythonprograms\\rightbutton.png"))
@@ -304,6 +340,9 @@ yearleft.place(x = WIDTH/2.37, y = HEIGHT/11)
 
 yearright = tkinter.Label(window, image = rightbutton_image, relief = tkinter.RAISED)
 yearright.place(x = WIDTH/1.91, y = HEIGHT/11)
+
+stopwatchlabel = tkinter.Label(window, text = "0:00:00", font = ("Helvetica", 60))
+stopwatchlabel.place(relx = 0.75, rely = 0.03)
 
 forward_backward = 0
 
@@ -392,6 +431,60 @@ def hover(event, widget):
 
 def leave(event, widget):
     widget.config(bd = 3, relief = tkinter.RAISED)
+
+def display_stopwatch_counter(labelvar, counter, hours):
+    global STATE_OF_STOPWATCH, COUNTER, HOURS
+    
+    def one_sec(counter2, hours2):
+        global COUNTER, HOURS
+        
+        if STATE_OF_STOPWATCH == True:
+            if COUNTER == 0:
+                display = "0:00:00"
+
+            elif COUNTER > 0 and COUNTER <= 3599:
+                tt = datetime.datetime.fromtimestamp(counter2)
+                string = tt.strftime("%M:%S")
+                display = str(hours2)+":"+string
+
+            elif COUNTER == 3600:
+                COUNTER = 0
+                HOURS += 1
+                tt = datetime.datetime.fromtimestamp(COUNTER)
+                string = tt.strftime("%M:%S")
+                display = str(HOURS)+":"+string
+
+            labelvar.config(text = display)
+
+            labelvar.after(1000, lambda: one_sec(COUNTER, HOURS))
+            COUNTER += 1
+
+    one_sec(COUNTER, HOURS)
+
+def add_hours_to_day():
+    global FOCUS_DAYS, TODAYS_DATE_ACTUAL, COUNTER, HOURS
+
+    FOCUS_DAYS.update([(TODAYS_DATE_ACTUAL, HOURS * 3600 + (COUNTER - 1))])
+
+def change_state(button, stopwatchlabel, add_function):
+    global COUNTER, HOURS, STATE_OF_STOPWATCH
+    
+    if STATE_OF_STOPWATCH == False:
+        button.config(text = "Stop focus session")
+        STATE_OF_STOPWATCH = True
+        display_stopwatch_counter(stopwatchlabel, COUNTER, HOURS)
+
+    elif STATE_OF_STOPWATCH == True:
+        STATE_OF_STOPWATCH = False
+        display_stopwatch_counter(stopwatchlabel, COUNTER, HOURS)
+        button.config(text = "Start focus session")
+        add_function()
+
+
+start_focus_button = tkinter.Button(window, text = "Start focus session", command = lambda: change_state(start_focus_button, stopwatchlabel, add_hours_to_day))
+start_focus_button.place(relx = 0.81, rely = 0.14)
+
+display_stopwatch_counter(stopwatchlabel, COUNTER, HOURS)
 
 rightbutton.bind("<Button - 1>", lambda x: month_forward("<Button - 1>", TODAYS_DATE))
 leftbutton.bind("<Button - 1>", lambda x: month_backward("<Button - 1>", TODAYS_DATE))
