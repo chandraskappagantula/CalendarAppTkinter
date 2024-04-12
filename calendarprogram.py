@@ -3,13 +3,15 @@ import datetime
 import time
 import calendar
 from PIL import ImageTk, Image
+import matplotlib.pyplot as plot
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import random
 
 window = tkinter.Tk()
 HEIGHT = window.winfo_screenheight()
 WIDTH = window.winfo_screenwidth()
 dimensions = str(WIDTH)+"x"+str(HEIGHT)
 window.geometry(dimensions)
-print(dimensions)
 
 frame = tkinter.Frame(window, height = HEIGHT, width = WIDTH)
 frame.pack()
@@ -18,6 +20,11 @@ event_manager = tkinter.Frame(window, height = HEIGHT/2, width = WIDTH/2, highli
 event_manager.place(relx = 0.5, rely = 0.5, anchor = "center")
 event_manager.lift()
 event_manager.place_forget()
+
+productivity_manager = tkinter.Frame(window, height = HEIGHT/2, width = WIDTH/2, highlightbackground = "grey", highlightthickness = 5)
+productivity_manager.place(relx = 0.5, rely = 0.5, anchor = "center")
+productivity_manager.lift()
+productivity_manager.place_forget()
 
 DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
@@ -277,10 +284,10 @@ def place_month(month, function, year, day, start_day):
             LIST_OF_DAYLABELS[LIST_OF_DAYLABELS.index([num, but])].append([maincount * (205.17) + 6.85, (120) * (factor) + HEIGHTS[0] - 115, str(month) + " " + str(num.cget("text")) + " " + str(year), BLOCKS[dayvar]])
             try:
                 EVENTS_DICTIONARY.update({str(month) + " " + str(num.cget("text")) + " " + str(year): EVENTS_DICTIONARY[str(month) + " " + str(num.cget("text")) + " " + str(year)]})
-                FOCUS_DAYS.update({str(month) + " " + str(num.cget("text")) + " " + str(year): 0})
+                FOCUS_DAYS.update({str(month) + " " + str(num.cget("text")) + " " + str(year): random.randint(1, 36000)})
             except KeyError:
                 EVENTS_DICTIONARY.update({str(month) + " " + str(num.cget("text")) + " " + str(year): []})
-                FOCUS_DAYS.update({str(month) + " " + str(num.cget("text")) + " " + str(year): 0})
+                FOCUS_DAYS.update({str(month) + " " + str(num.cget("text")) + " " + str(year): random.randint(1, 36000)})
             LIST_OF_BUTTONS.append([but, str(month) + " " + str(num.cget("text")) + " " + str(year)])
 
             if str(month) + " " + str(num.cget("text")) + " " + str(year) == TODAYS_DATE_ACTUAL:
@@ -295,10 +302,10 @@ def place_month(month, function, year, day, start_day):
             LIST_OF_DAYLABELS[LIST_OF_DAYLABELS.index([num, but])].append([maincount * (205.17) + 6.85, (120) * (factor) + HEIGHTS[0] - 115, str(month) + " " + str(num.cget("text")) + " " + str(year), BLOCKS[dayvar]])
             try:
                 EVENTS_DICTIONARY.update({str(month) + " " + str(num.cget("text")) + " " + str(year): EVENTS_DICTIONARY[str(month) + " " + str(num.cget("text")) + " " + str(year)]})
-                FOCUS_DAYS.update({str(month) + " " + str(num.cget("text")) + " " + str(year): 0})
+                FOCUS_DAYS.update({str(month) + " " + str(num.cget("text")) + " " + str(year): random.randint(1, 36000)})
             except KeyError:
                 EVENTS_DICTIONARY.update({str(month) + " " + str(num.cget("text")) + " " + str(year): []})
-                FOCUS_DAYS.update({str(month) + " " + str(num.cget("text")) + " " + str(year): 0})
+                FOCUS_DAYS.update({str(month) + " " + str(num.cget("text")) + " " + str(year): random.randint(1, 36000)})
             LIST_OF_BUTTONS.append([but, str(month) + " " + str(num.cget("text")) + " " + str(year)])
             
             if str(month) + " " + str(num.cget("text")) + " " + str(year) == TODAYS_DATE_ACTUAL:
@@ -465,6 +472,7 @@ def add_hours_to_day():
     global FOCUS_DAYS, TODAYS_DATE_ACTUAL, COUNTER, HOURS
 
     FOCUS_DAYS.update([(TODAYS_DATE_ACTUAL, HOURS * 3600 + (COUNTER - 1))])
+    
 
 def change_state(button, stopwatchlabel, add_function):
     global COUNTER, HOURS, STATE_OF_STOPWATCH
@@ -480,11 +488,89 @@ def change_state(button, stopwatchlabel, add_function):
         button.config(text = "Start focus session")
         add_function()
 
+def show_productivity_graph_for_month():
+    global FOCUS_DAYS, TODAYS_DATE_ACTUAL, MONTHS, productivity_manager
+    
+    productivity_manager.place(relx = 0.5, rely = 0.5, anchor = "center")
+    l = TODAYS_DATE_ACTUAL.split(" ")
+    
+    x_vals = []
+    y_vals = []
+
+    for item in FOCUS_DAYS:
+        x_vals.append(item)
+        y_vals.append(FOCUS_DAYS[item])
+
+    canvas = tkinter.Canvas(productivity_manager, height = productivity_manager.cget("height"), width = productivity_manager.cget("width"))
+    canvas.pack()
+
+    canvas.create_text(productivity_manager.cget("width")/2, productivity_manager.cget("height")/9, text = "Productivity graph for " + MONTHS[int(l[0]) - 1], font = ("Helvetica", 25))
+
+    x_axis = canvas.create_line(productivity_manager.cget("width")/8, 4 * (productivity_manager.cget("height")/5), 4 * (productivity_manager.cget("width")/4.5), 4 * (productivity_manager.cget("height")/5), arrow = tkinter.LAST)
+    y_axis = canvas.create_line(productivity_manager.cget("width")/8, 4 * (productivity_manager.cget("height")/5), productivity_manager.cget("width")/8, productivity_manager.cget("height")/5, arrow = tkinter.LAST)
+
+    canvas.create_text(productivity_manager.cget("width")/2, 4.2 * (productivity_manager.cget("height")/5), text = "Days", font = ("Helvetica", 10))
+    canvas.create_text(productivity_manager.cget("width")/16, productivity_manager.cget("height")/2, text = "Time per day (s)", font = ("Helvetica", 8))
+
+    total_width = int(4 * (productivity_manager.cget("width")/4.5)) - int(productivity_manager.cget("width")/8)
+    total_height = int((productivity_manager.cget("height")/5)) - int((4 * (productivity_manager.cget("height")/5)))
+
+    x_values = []
+    y_values = []
+
+    x_lines = []
+    y_lines = []
+
+    for i in range(int(productivity_manager.cget("width")/8), int(4 * (productivity_manager.cget("width")/4.5)), int(total_width/31)):
+        canvas.create_line(i, 4 * (productivity_manager.cget("height")/5) - 5, i, 4 * (productivity_manager.cget("height")/5) + 5)
+        x_values.append(i)
+
+    for n in range(int((4 * (productivity_manager.cget("height")/5))), int((productivity_manager.cget("height")/5)), int(total_height/10)):
+        canvas.create_line(productivity_manager.cget("width")/8 - 5, n, productivity_manager.cget("width")/8 + 5, n)
+        y_values.append(n)
+
+    for day in FOCUS_DAYS:
+        canvas.create_rectangle(x_values[x_vals.index(day)], int((4 * (productivity_manager.cget("height")/5))) + ((y_vals[x_vals.index(day)]/36000) * total_height), x_values[x_vals.index(day)] + 5, (int((4 * (productivity_manager.cget("height")/5))) + ((y_vals[x_vals.index(day)]/36000) * total_height)) + 5, fill = "red")
+
+        x_lines.append(x_values[x_vals.index(day)])
+        y_lines.append(int((4 * (productivity_manager.cget("height")/5))) + ((y_vals[x_vals.index(day)]/36000) * total_height))
+
+    for i in range(len(x_lines)):
+        try:
+            canvas.create_line(x_lines[i], y_lines[i], x_lines[i + 1], y_lines[i + 1])
+        except IndexError:
+            break
+
+    def hover_button(event, widget):
+            widget.config(bg = "red")
+
+    def leave_button(event, widget):
+        widget.config(bg = "light grey")
+
+    def close(manager):
+            global EVENT_OPEN_BOOL
+            
+            for child_widget in manager.winfo_children():
+                child_widget.destroy()
+                
+            manager.place_forget()
+            EVENT_OPEN_BOOL = False
+
+    exit_button = tkinter.Button(productivity_manager, text = "X", bg = "light grey", border = 1, borderwidth = 1, highlightthickness = 1, highlightcolor = "black", highlightbackground = "black", relief = tkinter.FLAT, padx = 7)
+    exit_button.place(relx = 0.96, rely = 0.0005)
+
+    exit_button.bind("<Enter>", lambda x: hover_button("<Enter>", exit_button))
+    exit_button.bind("<Leave>", lambda x: leave_button("<Leave>", exit_button))
+
+    exit_button.config(command = lambda: close(productivity_manager))
 
 start_focus_button = tkinter.Button(window, text = "Start focus session", command = lambda: change_state(start_focus_button, stopwatchlabel, add_hours_to_day))
 start_focus_button.place(relx = 0.81, rely = 0.14)
 
 display_stopwatch_counter(stopwatchlabel, COUNTER, HOURS)
+
+show_button = tkinter.Button(window, text = "Show productivity graph for this month", command = show_productivity_graph_for_month)
+show_button.place(relx = 0.59, rely = 0.12)
 
 rightbutton.bind("<Button - 1>", lambda x: month_forward("<Button - 1>", TODAYS_DATE))
 leftbutton.bind("<Button - 1>", lambda x: month_backward("<Button - 1>", TODAYS_DATE))
