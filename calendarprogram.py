@@ -263,7 +263,9 @@ def button_personalize(l):
         l[i][0].config(command = lambda i = i: open_event(l[i][1], l, i))
 
 def place_month(month, function, year, day, start_day):
-    global TODAYS_DATE, TODAYS_DATE_ACTUAL, LIST_OF_DAYLABELS, EVENTS_DICTIONARY, LIST_OF_BUTTONS, BLOCKS, FOCUS_DAYs
+    global TODAYS_DATE, TODAYS_DATE_ACTUAL, LIST_OF_DAYLABELS, EVENTS_DICTIONARY, LIST_OF_BUTTONS, BLOCKS, FOCUS_DAYS
+
+    print(EVENTS_DICTIONARY)
     
     dayvar = 1
     maincount = WEEKDAYDICT[function(day, start_day)] - 1
@@ -278,16 +280,25 @@ def place_month(month, function, year, day, start_day):
         if (maincount) < 7:
             num.place(x = (maincount * (205.17) + 6.85), y = (120) * (factor) + HEIGHTS[0] - 115)
             but.place(x = (maincount * (205.17) + (200/2.5)), y = (120) * (factor) + HEIGHTS[0] - 115)
-            
+            """
+            try:
+                for i in range(len(EVENTS_DICTIONARY[str(month) + " " + str(num.cget("text")) + " " + str(year)])):
+                    text = tkinter.Label(frame, text = EVENTS_DICTIONARY[str(month) + " " + str(num.cget("text")) + " " + str(year)][i][0])
+                    text.place(x = (maincount * (205.17) + 12), y = (120) * (factor) + HEIGHTS[0]/2)
+                    print("did this")
+
+            except KeyError:
+                pass
+            """
             maincount += 1
             dayvar += 1
             LIST_OF_DAYLABELS[LIST_OF_DAYLABELS.index([num, but])].append([maincount * (205.17) + 6.85, (120) * (factor) + HEIGHTS[0] - 115, str(month) + " " + str(num.cget("text")) + " " + str(year), BLOCKS[dayvar]])
             try:
                 EVENTS_DICTIONARY.update({str(month) + " " + str(num.cget("text")) + " " + str(year): EVENTS_DICTIONARY[str(month) + " " + str(num.cget("text")) + " " + str(year)]})
-                FOCUS_DAYS.update({str(month) + " " + str(num.cget("text")) + " " + str(year): random.randint(1, 36000)})
+                FOCUS_DAYS.update({str(month) + " " + str(num.cget("text")) + " " + str(year): 0})
             except KeyError:
                 EVENTS_DICTIONARY.update({str(month) + " " + str(num.cget("text")) + " " + str(year): []})
-                FOCUS_DAYS.update({str(month) + " " + str(num.cget("text")) + " " + str(year): random.randint(1, 36000)})
+                FOCUS_DAYS.update({str(month) + " " + str(num.cget("text")) + " " + str(year): 0})
             LIST_OF_BUTTONS.append([but, str(month) + " " + str(num.cget("text")) + " " + str(year)])
 
             if str(month) + " " + str(num.cget("text")) + " " + str(year) == TODAYS_DATE_ACTUAL:
@@ -298,14 +309,23 @@ def place_month(month, function, year, day, start_day):
             factor += 1
             num.place(x = (maincount * (205.17) + 6.85), y = (120) * (factor) + HEIGHTS[0] - 115)
             but.place(x = (maincount * (205.17) + (200/2.5)), y = (120) * (factor) + HEIGHTS[0] - 115)
-            
+            """
+            try:
+                for i in range(len(EVENTS_DICTIONARY[str(month) + " " + str(num.cget("text")) + " " + str(year)])):
+                    text = tkinter.Label(frame, text = EVENTS_DICTIONARY[str(month) + " " + str(num.cget("text")) + " " + str(year)][i])
+                    text.place(x = (maincount * (205.17) + 6.85), y = (120) * (factor) + HEIGHTS[0])
+                    print("did this??")
+
+            except KeyError:
+                pass
+            """
             LIST_OF_DAYLABELS[LIST_OF_DAYLABELS.index([num, but])].append([maincount * (205.17) + 6.85, (120) * (factor) + HEIGHTS[0] - 115, str(month) + " " + str(num.cget("text")) + " " + str(year), BLOCKS[dayvar]])
             try:
                 EVENTS_DICTIONARY.update({str(month) + " " + str(num.cget("text")) + " " + str(year): EVENTS_DICTIONARY[str(month) + " " + str(num.cget("text")) + " " + str(year)]})
-                FOCUS_DAYS.update({str(month) + " " + str(num.cget("text")) + " " + str(year): random.randint(1, 36000)})
+                FOCUS_DAYS.update({str(month) + " " + str(num.cget("text")) + " " + str(year): 0})
             except KeyError:
                 EVENTS_DICTIONARY.update({str(month) + " " + str(num.cget("text")) + " " + str(year): []})
-                FOCUS_DAYS.update({str(month) + " " + str(num.cget("text")) + " " + str(year): random.randint(1, 36000)})
+                FOCUS_DAYS.update({str(month) + " " + str(num.cget("text")) + " " + str(year): 0})
             LIST_OF_BUTTONS.append([but, str(month) + " " + str(num.cget("text")) + " " + str(year)])
             
             if str(month) + " " + str(num.cget("text")) + " " + str(year) == TODAYS_DATE_ACTUAL:
@@ -471,8 +491,8 @@ def display_stopwatch_counter(labelvar, counter, hours):
 def add_hours_to_day():
     global FOCUS_DAYS, TODAYS_DATE_ACTUAL, COUNTER, HOURS
 
-    FOCUS_DAYS.update([(TODAYS_DATE_ACTUAL, HOURS * 3600 + (COUNTER - 1))])
-    
+    FOCUS_DAYS.update([(TODAYS_DATE_ACTUAL, int(FOCUS_DAYS[TODAYS_DATE_ACTUAL]) + HOURS * 3600 + (COUNTER - 1))])
+    COUNTER = 0
 
 def change_state(button, stopwatchlabel, add_function):
     global COUNTER, HOURS, STATE_OF_STOPWATCH
