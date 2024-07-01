@@ -64,11 +64,13 @@ def print_date(days, months):
 
 def find_day(day1, numtogoback):
     reference = DAYS.index(day1)
-    
+
     i = 0
     val = ""
 
     reference = int(reference)
+    if numtogoback == 0:
+        return day1
 
     while numtogoback > 0:
         init = reference - 1 - i
@@ -268,7 +270,11 @@ def place_month(month, function, year, day, start_day):
     print(EVENTS_DICTIONARY)
     
     dayvar = 1
-    maincount = WEEKDAYDICT[function(day, start_day)] - 1
+    try:
+        maincount = WEEKDAYDICT[function(day, start_day)] - 1
+    except KeyError:
+        print(function(day, start_day), "day", day, "start_day", start_day)
+        pass
     factor = 1
 
     while dayvar <= calendar.monthrange(year, month)[1]:
