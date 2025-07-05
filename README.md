@@ -5,7 +5,7 @@ A personal calendar app made with the `Tkinter`, `datetime`, and `calendar` modu
 
 # Installation
 
-Ensure that all assets and main `.py` file are placed in the same directory. You need to have the `PIL` library installed with the following: `pip install pillow`. You may want to check which modules are already installed with `python -m pip list`. (`.exe` file coming soon)
+Ensure that all assets and main `calendarprogram.py` file are placed in the same directory. You will need to have the `PIL` library installed with the following: `pip install pillow`. You may want to check which modules are already installed with `python -m pip list`. (`.exe` file coming soon)
 
 # Purpose
 
